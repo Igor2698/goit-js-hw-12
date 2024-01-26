@@ -81,8 +81,6 @@ async function onLoadMoreClick() {
     showIziToastMessage(response.total);
     handleWithResponce(response);
     smoothScroll();
-
-
 }
 
 function renderGallery(images) {
