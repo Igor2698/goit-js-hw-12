@@ -64,8 +64,19 @@ function handleWithResponce(images) {
         showLoadSpinner(false)
         return
     }
+
+    images.total < limit ? showIziToastMessage() : null;
+
+    if (page === 1) {
+        iziToast.success({
+            position: 'topRight',
+            message: `Congratulations! We found ${images.total} images`,
+            timeout: 2000,
+        });
+    }
+
     showLoadSpinner(false);
-    showIziToastMessage(images.total);
+
     renderGallery(images.hits);
 
     const galleryLightBox = new SimpleLightbox('.gallery a', { captionsData: 'alt', captionDelay: 250 });
@@ -81,12 +92,7 @@ async function onLoadMoreClick() {
     showLoadMore(false);
     const response = await fetchImages(selectedPicture);
     const totalPages = Math.ceil(response.total / limit);
-    if (page >= totalPages) {
-        iziToast.error({
-            position: "topRight",
-            message: "We're sorry, there are no more posts to load"
-        });
-    }
+    page >= totalPages ? (showIziToastMessage()) : null
     handleWithResponce(response);
     smoothScroll();
 }
@@ -126,15 +132,14 @@ function showLoadMore(should) {
     loadMoreButton.style.display = should ? 'block' : 'none'
 }
 
-function showIziToastMessage(totalOfImages) {
-    if (page === 1) {
-        iziToast.success({
-            position: 'topRight',
-            message: `Congratulations! We found ${totalOfImages} images`,
-            timeout: 2000,
-        });
-    }
+function showIziToastMessage() {
+    iziToast.error({
+        position: "topRight",
+        message: "We're sorry, there are no more posts to load"
+    })
 }
+
+
 
 function smoothScroll() {
     const cart = document.querySelector('.gallery-item');
