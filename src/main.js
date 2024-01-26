@@ -28,11 +28,13 @@ form.addEventListener('submit', onFormSubmit);
 async function onFormSubmit(ev) {
     ev.preventDefault();
     page = 1;
+    selectedPicture = ev.target.image.value;
     changeLoaderPosition();
     showLoadMore(false);
     showLoadSpinner(true);
     gallery.innerHTML = '';
-    selectedPicture = ev.target.image.value;
+    ev.target.image.blur();
+    ev.target.image.value = '';
     const images = await fetchImages(selectedPicture);
     handleWithResponce(images);
 }
@@ -78,7 +80,13 @@ async function onLoadMoreClick() {
     showLoadSpinner(true);
     showLoadMore(false);
     const response = await fetchImages(selectedPicture);
-    showIziToastMessage(response.total);
+    const totalPages = Math.ceil(response.total / limit);
+    if (page >= totalPages) {
+        iziToast.error({
+            position: "topRight",
+            message: "We're sorry, there are no more posts to load"
+        });
+    }
     handleWithResponce(response);
     smoothScroll();
 }
@@ -119,15 +127,8 @@ function showLoadMore(should) {
 }
 
 function showIziToastMessage(totalOfImages) {
-    const totalPages = Math.ceil(totalOfImages / limit);
-    if (page >= totalPages && page !== 1) {
-        return iziToast.error({
-            position: "topRight",
-            message: "We're sorry, there are no more posts to load"
-        });
-    }
     if (page === 1) {
-        return iziToast.success({
+        iziToast.success({
             position: 'topRight',
             message: `Congratulations! We found ${totalOfImages} images`,
             timeout: 2000,
